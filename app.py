@@ -1,3 +1,7 @@
+from io import BytesIO
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 import streamlit as st
 import os
 from dotenv import load_dotenv
@@ -9,6 +13,8 @@ translations = {
         "target_market": "Target Market",
         "number_personas": "Number of Personas",
         "generate": "Generate Personas",
+        "generated_personas": "Generated Customer Personas",
+        "export_personas": "Export Persona Cards",
         "demographics": "Demographics",
         "pain_points": "Pain Points",
         "goals": "Goals",
@@ -20,6 +26,8 @@ translations = {
         "target_market": "लक्षित बाजार",
         "number_personas": "व्यक्तित्वों की संख्या",
         "generate": "व्यक्तित्व बनाएं",
+        "generated_personas": "जेनरेट किए गए ग्राहक व्यक्तित्व",
+        "export_personas": "पर्सोना कार्ड निर्यात करें",
         "demographics": "जनसांख्यिकी",
         "pain_points": "समस्याएँ",
         "goals": "लक्ष्य",
@@ -31,6 +39,8 @@ translations = {
         "target_market": "లక్ష్య మార్కెట్",
         "number_personas": "పర్సనాల సంఖ్య",
         "generate": "పర్సనాలను రూపొందించండి",
+        "generated_personas": "రూపొందించిన కస్టమర్ పర్సోనాలు",
+        "export_personas": "పర్సోనా కార్డులను ఎగుమతి చేయండి",
         "demographics": "జనాభా వివరాలు",
         "pain_points": "సమస్యలు",
         "goals": "లక్ష్యాలు",
@@ -42,6 +52,8 @@ translations = {
         "target_market": "இலக்கு சந்தை",
         "number_personas": "பெர்சோனாக்களின் எண்ணிக்கை",
         "generate": "பெர்சோனாக்களை உருவாக்கவும்",
+        "generated_personas": "உருவாக்கப்பட்ட வாடிக்கையாளர் பெர்சோனாக்கள்",
+        "export_personas": "பெர்சோனா கார்டுகளை ஏற்றுமதி செய்யவும்",
         "demographics": "மக்கள்தொகை விவரங்கள்",
         "pain_points": "சிக்கல்கள்",
         "goals": "இலக்குகள்",
@@ -53,6 +65,8 @@ translations = {
         "target_market": "ಗುರಿ ಮಾರುಕಟ್ಟೆ",
         "number_personas": "ಪರ್ಸೋನಾಗಳ ಸಂಖ್ಯೆ",
         "generate": "ಪರ್ಸೋನಾಗಳನ್ನು ರಚಿಸಿ",
+        "generated_personas": "ರಚಿಸಲಾದ ಗ್ರಾಹಕ ಪರ್ಸೋನಾಗಳು",
+        "export_personas": "ಪರ್ಸೋನಾ ಕಾರ್ಡ್‌ಗಳನ್ನು ರಫ್ತು ಮಾಡಿ",
         "demographics": "ಜನಸಂಖ್ಯಾ ವಿವರಗಳು",
         "pain_points": "ಸಮಸ್ಯೆಗಳು",
         "goals": "ಗುರಿಗಳು",
@@ -64,6 +78,8 @@ translations = {
         "target_market": "ലക്ഷ്യ വിപണി",
         "number_personas": "പേഴ്സണകളുടെ എണ്ണം",
         "generate": "പേഴ്സണകൾ സൃഷ്ടിക്കുക",
+        "generated_personas": "സൃഷ്ടിച്ച ഉപഭോക്തൃ പേഴ്സണകൾ",
+        "export_personas": "പേഴ്സോണ കാർഡുകൾ എക്സ്പോർട്ട് ചെയ്യുക",
         "demographics": "ജനസംഖ്യാ വിവരങ്ങൾ",
         "pain_points": "പ്രശ്നങ്ങൾ",
         "goals": "ലക്ഷ്യങ്ങൾ",
@@ -260,9 +276,8 @@ Do not include markdown code fences.
                 model="gemini-3.5-flash-lite",
                 contents=prompt
             )
-
+            print(response.text)
             st.subheader(t["generated_personas"])
-
         try:
 
             personas = json.loads(response.text)
@@ -483,5 +498,88 @@ if "personas" in locals():
         data=export_html,
         file_name="customer_persona_cards.html",
         mime="text/html"
+    )
+
+    # PDF Export
+
+if "personas" in locals():
+
+    pdf_buffer = BytesIO()
+
+    doc = SimpleDocTemplate(
+        pdf_buffer,
+        pagesize=A4,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=40
+    )
+
+    styles = getSampleStyleSheet()
+    story = []
+
+    story.append(
+        Paragraph("Customer Persona Cards", styles["Title"])
+    )
+    story.append(Spacer(1, 20))
+
+    for persona in personas:
+
+        story.append(
+            Paragraph(
+                f"👤 {persona['name']}",
+                styles["Heading2"]
+            )
+        )
+
+        story.append(Paragraph(
+            "<b>Demographics</b><br/>" +
+            "<br/>".join(
+                f"• {item}" for item in persona["demographics"]
+            ),
+            styles["BodyText"]
+        ))
+
+        story.append(Spacer(1, 12))
+
+        story.append(Paragraph(
+            "<b>Pain Points</b><br/>" +
+            "<br/>".join(
+                f"• {item}" for item in persona["pain_points"]
+            ),
+            styles["BodyText"]
+        ))
+
+        story.append(Spacer(1, 12))
+
+        story.append(Paragraph(
+            "<b>Goals</b><br/>" +
+            "<br/>".join(
+                f"• {item}" for item in persona["goals"]
+            ),
+            styles["BodyText"]
+        ))
+
+        story.append(Spacer(1, 12))
+
+        story.append(Paragraph(
+            "<b>Preferred Channels</b><br/>" +
+            "<br/>".join(
+                f"• {item}" for item in persona["preferred_channels"]
+            ),
+            styles["BodyText"]
+        ))
+
+        story.append(Spacer(1, 25))
+
+    doc.build(story)
+
+    pdf_buffer.seek(0)
+
+    st.download_button(
+        label="📄 Download Persona Cards as PDF",
+        data=pdf_buffer,
+        file_name="customer_persona_cards.pdf",
+        mime="application/pdf"
     )
 
