@@ -15,6 +15,9 @@ translations = {
         "generate": "Generate Personas",
         "generated_personas": "Generated Customer Personas",
         "export_personas": "Export Persona Cards",
+        "comparison": "Persona Comparison",
+        "download_cards": "Download Persona Cards",
+        "download_pdf": "Download Persona Cards as PDF",
         "demographics": "Demographics",
         "pain_points": "Pain Points",
         "goals": "Goals",
@@ -28,6 +31,9 @@ translations = {
         "generate": "व्यक्तित्व बनाएं",
         "generated_personas": "जेनरेट किए गए ग्राहक व्यक्तित्व",
         "export_personas": "पर्सोना कार्ड निर्यात करें",
+        "comparison": "पर्सोना तुलना",
+        "download_cards": "पर्सोना कार्ड डाउनलोड करें",
+        "download_pdf": "पर्सोना कार्ड डाउनलोड करें (PDF)",
         "demographics": "जनसांख्यिकी",
         "pain_points": "समस्याएँ",
         "goals": "लक्ष्य",
@@ -41,6 +47,9 @@ translations = {
         "generate": "పర్సనాలను రూపొందించండి",
         "generated_personas": "రూపొందించిన కస్టమర్ పర్సోనాలు",
         "export_personas": "పర్సోనా కార్డులను ఎగుమతి చేయండి",
+        "comparison": "పర్సోనా తులన",
+        "download_cards": "పర్సోనా కార్డులను డౌన్లోడ్ చేయండి",
+        "download_pdf": "పర్సోనా కార్డులను PDF గా డౌన్లోడ్ చేయండి",
         "demographics": "జనాభా వివరాలు",
         "pain_points": "సమస్యలు",
         "goals": "లక్ష్యాలు",
@@ -54,6 +63,9 @@ translations = {
         "generate": "பெர்சோனாக்களை உருவாக்கவும்",
         "generated_personas": "உருவாக்கப்பட்ட வாடிக்கையாளர் பெர்சோனாக்கள்",
         "export_personas": "பெர்சோனா கார்டுகளை ஏற்றுமதி செய்யவும்",
+        "comparison": "பெர்சோனா ஒப்பீடு",
+        "download_cards": "பெர்சோனா கார்டுகளை பதிவிறக்கவும்",
+        "download_pdf": "பெர்சோனா கார்டுகளை PDF ஆக பதிவிறக்கவும்",
         "demographics": "மக்கள்தொகை விவரங்கள்",
         "pain_points": "சிக்கல்கள்",
         "goals": "இலக்குகள்",
@@ -67,6 +79,9 @@ translations = {
         "generate": "ಪರ್ಸೋನಾಗಳನ್ನು ರಚಿಸಿ",
         "generated_personas": "ರಚಿಸಲಾದ ಗ್ರಾಹಕ ಪರ್ಸೋನಾಗಳು",
         "export_personas": "ಪರ್ಸೋನಾ ಕಾರ್ಡ್‌ಗಳನ್ನು ರಫ್ತು ಮಾಡಿ",
+        "comparison": "ಪರ್ಸೋನಾ ಹೋಲಿಕೆ",
+        "download_cards": "ಪರ್ಸೋನಾ ಕಾರ್ಡ್‌ಗಳನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ",
+        "download_pdf": "ಪರ್ಸೋನಾ ಕಾರ್ಡ್‌ಗಳನ್ನು PDF ಆಗಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ",
         "demographics": "ಜನಸಂಖ್ಯಾ ವಿವರಗಳು",
         "pain_points": "ಸಮಸ್ಯೆಗಳು",
         "goals": "ಗುರಿಗಳು",
@@ -80,6 +95,9 @@ translations = {
         "generate": "പേഴ്സണകൾ സൃഷ്ടിക്കുക",
         "generated_personas": "സൃഷ്ടിച്ച ഉപഭോക്തൃ പേഴ്സണകൾ",
         "export_personas": "പേഴ്സോണ കാർഡുകൾ എക്സ്പോർട്ട് ചെയ്യുക",
+        "comparison": "പേഴ്സോണ താരതമ്യം",
+        "download_cards": "പേഴ്സോണ കാർഡുകൾ ഡൗൺലോഡ് ചെയ്യുക",
+        "download_pdf": "പേഴ്സോണ കാർഡുകൾ PDF ആയി ഡൗൺലോഡ് ചെയ്യുക",
         "demographics": "ജനസംഖ്യാ വിവരങ്ങൾ",
         "pain_points": "പ്രശ്നങ്ങൾ",
         "goals": "ലക്ഷ്യങ്ങൾ",
@@ -200,6 +218,8 @@ number_of_personas = st.number_input(
     value=3,
     step=1
 )
+if "persona_history" not in st.session_state:
+    st.session_state.persona_history = []
 
 if st.button(t["generate"]):
 
@@ -282,6 +302,8 @@ Do not include markdown code fences.
 
             personas = json.loads(response.text)
 
+            st.session_state.persona_history.append(personas)
+
             columns = st.columns(len(personas))
 
             for i, persona in enumerate(personas):
@@ -345,7 +367,7 @@ Do not include markdown code fences.
 </div>""",
     unsafe_allow_html=True
 )           
-            st.subheader("Persona Comparison")
+            st.subheader(t["comparison"])
 
             comparison_html = f"""
             <table style="width:100%; border-collapse:collapse;">
@@ -396,7 +418,7 @@ Do not include markdown code fences.
 
 if "personas" in locals():
 
-    st.subheader("Export Persona Cards")
+    st.subheader(t["export_personas"])
 
     export_html = """
     <html>
@@ -494,7 +516,7 @@ if "personas" in locals():
     """
 
     st.download_button(
-        label="📥 Download Persona Cards",
+        label="📥 " + t["download_cards"],
         data=export_html,
         file_name="customer_persona_cards.html",
         mime="text/html"
@@ -577,7 +599,7 @@ if "personas" in locals():
     pdf_buffer.seek(0)
 
     st.download_button(
-        label="📄 Download Persona Cards as PDF",
+        label="📥 " + t["download_cards"],
         data=pdf_buffer,
         file_name="customer_persona_cards.pdf",
         mime="application/pdf"
